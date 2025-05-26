@@ -12,6 +12,12 @@ import "./page-interface-generated";
 import { MultiMouseWS, MousePoint } from "./ws-mouse";
 import { MousePointRenderer } from "./mouse-point-renderer";
 
+// 障礙物操作相關變數
+let obstaclePosition = [0.3, 0.5];
+let obstacleMaps: ObstacleMap[] = [];
+let webgl: WebGLRenderingContext;
+let obstacleSize = 256;
+
 let mousePointRenderer: MousePointRenderer | null = null;
 
 // callback：把多滑鼠座標給流體模擬和視覺化
@@ -70,7 +76,7 @@ function main() {
         return;
 
     // TypeScript doesn't know that gl is non-null after the above check
-    const webgl: WebGLRenderingContext = gl;
+    webgl = gl;
 
     // 初始化滑鼠點渲染器
     mousePointRenderer = new MousePointRenderer(canvas);
@@ -80,18 +86,16 @@ function main() {
         "WEBGL_color_buffer_float",
         "OES_texture_float_linear",
     ];
-    Requirements.loadExtensions(webgl, extensions);
-
-    const size = 256;
+    Requirements.loadExtensions(webgl, extensions);    const size = 256;
+    obstacleSize = size; // 設定全域變數
 
     const fluid = new Fluid(webgl, size, size);
     const brush = new Brush(webgl);
-    const obstacleMaps: ObstacleMap[] = [];
     obstacleMaps["none"] = new ObstacleMap(webgl, size, size);
-    obstacleMaps["one"] = new ObstacleMap(webgl, size, size);
-    {
-        obstacleMaps["one"].addObstacle([0.015, 0.015], [0.3, 0.5]);
-    }
+    
+    // 使用新的函數來建立可移動的障礙物
+    rebuildObstacleMapOne(obstacleMaps, webgl, size, obstaclePosition);
+    
     obstacleMaps["many"] = new ObstacleMap(webgl, size, size);
     {
         let size = [0.012, 0.012];
@@ -102,9 +106,10 @@ function main() {
                 obstacleMaps["many"].addObstacle(size, pos);
             }
         }
-    }
+    }    Parameters.bind(fluid);
 
-    Parameters.bind(fluid);
+    // 設定障礙物鍵盤控制
+    setupObstacleControls();
 
     /* Update the FPS indicator every second. */
     let instantFPS: number = 0;
@@ -159,6 +164,67 @@ function main() {
     }
 
     requestAnimationFrame(mainLoop);
+}
+
+// 重建單一障礙物地圖的函數
+function rebuildObstacleMapOne(obstacleMaps: ObstacleMap[], gl: WebGLRenderingContext, size: number, pos: number[]) {
+    obstacleMaps["one"] = new ObstacleMap(gl, size, size);
+    obstacleMaps["one"].addObstacle([0.015, 0.015], pos);
+}
+
+// 移動障礙物的函數
+function moveObstacle(dx: number, dy: number) {
+    obstaclePosition[0] += dx;
+    obstaclePosition[1] += dy;
+    
+    // 確保障礙物不會移出邊界
+    obstaclePosition[0] = Math.max(0.02, Math.min(0.98, obstaclePosition[0]));
+    obstaclePosition[1] = Math.max(0.02, Math.min(0.98, obstaclePosition[1]));
+    
+    rebuildObstacleMapOne(obstacleMaps, webgl, obstacleSize, obstaclePosition);
+}
+
+// 設定鍵盤事件監聽
+function setupObstacleControls() {
+    // 鍵盤控制
+    document.addEventListener('keydown', (event) => {
+        const moveStep = 0.01;
+        switch(event.key) {
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+                moveObstacle(-moveStep, 0);
+                break;
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+                moveObstacle(moveStep, 0);
+                break;
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+                moveObstacle(0, -moveStep);
+                break;
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+                moveObstacle(0, moveStep);
+                break;
+        }
+    });
+    
+    // 按鈕控制
+    const moveStep = 0.01;
+    
+    const leftButton = document.getElementById("move-obstacle-left");
+    const rightButton = document.getElementById("move-obstacle-right");
+    const upButton = document.getElementById("move-obstacle-up");
+    const downButton = document.getElementById("move-obstacle-down");
+    
+    if (leftButton) leftButton.onclick = () => moveObstacle(-moveStep, 0);
+    if (rightButton) rightButton.onclick = () => moveObstacle(moveStep, 0);
+    if (upButton) upButton.onclick = () => moveObstacle(0, -moveStep);
+    if (downButton) downButton.onclick = () => moveObstacle(0, moveStep);
 }
 
 main();
