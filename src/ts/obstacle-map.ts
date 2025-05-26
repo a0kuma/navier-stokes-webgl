@@ -114,7 +114,6 @@ class ObstacleMap extends GLResource {
       this.addObstacle(obstacle.size, obstacle.pos);
     }
   }
-
   private resetToInitialState(): void {
     const gl = super.gl();
     
@@ -138,7 +137,7 @@ class ObstacleMap extends GLResource {
         } else if (iX === width - 1) {
           texels.push.apply(texels, [0, 127, 0, 255]);
         } else {
-          texels.push.apply(texels, [127, 127, 0, 255]);
+          texels.push.apply(texels, [0, 0, 0, 0]);
         }
       }
     }
