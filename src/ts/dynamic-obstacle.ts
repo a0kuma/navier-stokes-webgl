@@ -42,25 +42,38 @@ export class DynamicObstacleSystem {
     this.obstacles.push(obstacle);
     return obstacle;
   }
-
   // 檢測點與障礙物的碰撞
   private checkPointObstacleCollision(point: MousePoint, obstacle: DynamicObstacle): boolean {
     const dx = point.pos[0] - obstacle.pos[0];
     const dy = point.pos[1] - obstacle.pos[1];
     const distance = Math.sqrt(dx * dx + dy * dy);
     
-    // 假設點的半徑為0.005，障礙物半徑為size的平均值
-    const pointRadius = 0.005;
+    // 假設點的半徑為0.01，障礙物半徑為size的平均值
+    const pointRadius = 0.01;
     const obstacleRadius = (obstacle.size[0] + obstacle.size[1]) * 0.5;
+    const collisionDistance = pointRadius + obstacleRadius;
     
-    return distance < (pointRadius + obstacleRadius);
+    const isCollision = distance < collisionDistance;
+    
+    // 詳細的碰撞檢測日志
+    if (isCollision) {
+      console.log(`🔥 碰撞檢測成功! 
+        點位置: [${point.pos[0].toFixed(3)}, ${point.pos[1].toFixed(3)}]
+        障礙物位置: [${obstacle.pos[0].toFixed(3)}, ${obstacle.pos[1].toFixed(3)}]
+        距離: ${distance.toFixed(4)}
+        碰撞閾值: ${collisionDistance.toFixed(4)}
+        點半徑: ${pointRadius}, 障礙物半徑: ${obstacleRadius.toFixed(4)}`);
+    }
+    
+    return isCollision;
   }
-
   // 處理點與障礙物的碰撞
   private handlePointObstacleCollision(point: MousePoint, obstacle: DynamicObstacle): void {
     const dx = point.pos[0] - obstacle.pos[0];
     const dy = point.pos[1] - obstacle.pos[1];
     const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    console.log(`⚡ 處理碰撞: 距離=${distance.toFixed(4)}, 點移動:[${point.movement[0].toFixed(3)}, ${point.movement[1].toFixed(3)}], 障礙物速度:[${obstacle.vel[0].toFixed(3)}, ${obstacle.vel[1].toFixed(3)}]`);
     
     if (distance === 0) return; // 避免除以零
     
@@ -89,9 +102,8 @@ export class DynamicObstacleSystem {
     
     obstacle.vel[0] += impulseX / obstacle.mass;
     obstacle.vel[1] += impulseY / obstacle.mass;
-    
-    // 分離重疊的物體
-    const pointRadius = 0.005;
+      // 分離重疊的物體
+    const pointRadius = 0.01;  // 與checkPointObstacleCollision一致
     const obstacleRadius = (obstacle.size[0] + obstacle.size[1]) * 0.5;
     const overlap = pointRadius + obstacleRadius - distance;
     
@@ -181,13 +193,13 @@ export class DynamicObstacleSystem {
       }
     }
   }
-
   // 更新動態障礙物系統
   update(mousePoints: MousePoint[], deltaTime: number): void {
     // 檢測滑鼠點與障礙物的碰撞
     for (const point of mousePoints) {
       for (const obstacle of this.obstacles) {
         if (this.checkPointObstacleCollision(point, obstacle)) {
+          console.log(`🚨 WS點碰撞檢測成功! 點位置:[${point.pos[0].toFixed(3)}, ${point.pos[1].toFixed(3)}], 障礙物位置:[${obstacle.pos[0].toFixed(3)}, ${obstacle.pos[1].toFixed(3)}], ID:${obstacle.id}`);
           this.handlePointObstacleCollision(point, obstacle);
         }
       }

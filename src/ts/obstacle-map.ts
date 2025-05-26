@@ -3,6 +3,8 @@ import Shader from "./gl-utils/shader";
 import FBO from "./gl-utils/fbo";
 import * as ObstacleMapShaders from "./shaders/obstacle-map-shaders";
 import { DynamicObstacle, DynamicObstacleSystem } from "./dynamic-obstacle";
+import { MousePoint } from "./ws-mouse";
+import Fluid from "./fluid";
 
 class ObstacleMap extends GLResource {
   private _width: number;
@@ -15,7 +17,6 @@ class ObstacleMap extends GLResource {
   private _drawShader: Shader;
   private _addShader: Shader;
   private _dynamicObstacleSystem: DynamicObstacleSystem;
-
   constructor(gl: WebGLRenderingContext, width: number, height: number) {
     super(gl);
 
@@ -31,6 +32,8 @@ class ObstacleMap extends GLResource {
     this._dynamicObstacleSystem = new DynamicObstacleSystem(width, height);
 
     this.initObstaclesMap();
+    
+    console.log(`🔧 ObstacleMap 初始化完成: 寬度=${width}, 高度=${height}, texture=${this._texture ? 'OK' : 'FAILED'}`);
   }
   public freeGLResources(): void {
     const gl = super.gl();
@@ -43,8 +46,11 @@ class ObstacleMap extends GLResource {
     this._drawShader.freeGLResources();
     this._addShader.freeGLResources();
   }
-
   public get texture(): WebGLTexture {
+    if (!this._texture) {
+      console.error("🚨 ObstacleMap texture 未初始化！重新初始化...");
+      this.initObstaclesMap();
+    }
     return this._texture;
   }
 
@@ -80,8 +86,7 @@ class ObstacleMap extends GLResource {
   ): DynamicObstacle {
     return this._dynamicObstacleSystem.createObstacle(pos, size, mass, friction, restitution);
   }
-
-  public updateDynamicObstacles(mousePoints: any[], deltaTime: number): void {
+  public updateDynamicObstacles(mousePoints: MousePoint[], deltaTime: number): void {
     this._dynamicObstacleSystem.update(mousePoints, deltaTime);
     this.updateDynamicObstacleTexture();
   }
@@ -93,16 +98,18 @@ class ObstacleMap extends GLResource {
   public clearDynamicObstacles(): void {
     this._dynamicObstacleSystem.clear();
   }
-
   // 更新動態障礙物到texture
   private updateDynamicObstacleTexture(): void {
     const gl = super.gl();
+    
+    console.log(`🔄 更新動態障礙物纹理: texture=${this._texture ? 'OK' : 'NULL'}`);
     
     // 先重置為初始狀態（只有邊界）
     this.resetToInitialState();
     
     // 添加所有動態障礙物
     const obstacles = this._dynamicObstacleSystem.getObstacles();
+    console.log(`🔄 添加 ${obstacles.length} 個動態障礙物到纹理`);
     for (const obstacle of obstacles) {
       this.addObstacle(obstacle.size, obstacle.pos);
     }
@@ -181,6 +188,28 @@ class ObstacleMap extends GLResource {
 
     this._texture = textures[0];
     this._initTexture = textures[1];
+  }
+  // 添加動態障礙物對流體的速度影響
+  public addDynamicObstacleVelocityToFluid(fluid: Fluid): void {
+    const obstacles = this._dynamicObstacleSystem.getObstacles();
+    for (const obstacle of obstacles) {
+      // 計算障礙物的影響範圍
+      const influenceRadius = Math.max(obstacle.size[0], obstacle.size[1]) * 1.5;
+      const brushSize = [influenceRadius, influenceRadius];
+      
+      // 根據障礙物的速度向流體添加速度
+      const velocityScale = 0.5; // 調整速度影響強度
+      const addVel = [
+        obstacle.vel[0] * velocityScale,
+        obstacle.vel[1] * velocityScale
+      ];
+      
+      // 只有當障礙物有明顯速度時才添加影響
+      const speed = Math.sqrt(obstacle.vel[0] * obstacle.vel[0] + obstacle.vel[1] * obstacle.vel[1]);
+      if (speed > 0.001) {
+        fluid.addVel(obstacle.pos, brushSize, addVel);
+      }
+    }
   }
 }
 

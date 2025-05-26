@@ -1,5 +1,6 @@
 import { DynamicObstacle, DynamicObstacleSystem } from "./dynamic-obstacle";
 import { MousePointRenderer } from "./mouse-point-renderer";
+import { MousePoint } from "./ws-mouse";
 import ObstacleMap from "./obstacle-map";
 
 export interface DynamicObstacleControlConfig {
@@ -21,8 +22,7 @@ export class DynamicObstacleController {
   constructor(obstacleMap: ObstacleMap, mouseRenderer: MousePointRenderer) {
     this.obstacleMap = obstacleMap;
     this.mouseRenderer = mouseRenderer;
-    
-    // 預設配置
+      // 預設配置
     this.config = {
       enabled: false,
       autoCreate: false,
@@ -30,7 +30,7 @@ export class DynamicObstacleController {
       defaultMass: 1.0,
       defaultFriction: 0.95,
       defaultRestitution: 0.8,
-      defaultSize: [0.03, 0.03]
+      defaultSize: [0.06, 0.06]  // 增加默認大小，讓障礙物更容易被碰撞
     };
     
     this.createControlPanel();
@@ -82,15 +82,15 @@ export class DynamicObstacleController {
 
     const obstacle = this.obstacleMap.createDynamicObstacle(
       finalPos, finalSize, finalMass, finalFriction, finalRestitution
-    );
-
-    // 更新渲染器
+    );    // 更新渲染器
     this.mouseRenderer.updateDynamicObstacles(this.obstacleMap.getDynamicObstacles());
+    
+    // 更新控制面板顯示
+    this.updateControlPanel();
     
     console.log(`創建動態障礙物 ID: ${obstacle.id}`);
     return obstacle;
   }
-
   // 移除障礙物
   removeObstacle(id: number): void {
     if (!this.config.enabled) return;
@@ -102,6 +102,7 @@ export class DynamicObstacleController {
         this.obstacleMap.getDynamicObstacles().indexOf(obstacle), 1
       );
       this.mouseRenderer.updateDynamicObstacles(this.obstacleMap.getDynamicObstacles());
+      this.updateControlPanel(); // 更新控制面板
       console.log(`移除動態障礙物 ID: ${id}`);
     }
   }
@@ -110,6 +111,7 @@ export class DynamicObstacleController {
   clearAllObstacles(): void {
     this.obstacleMap.clearDynamicObstacles();
     this.mouseRenderer.updateDynamicObstacles([]);
+    this.updateControlPanel(); // 更新控制面板
     console.log("清除所有動態障礙物");
   }
 
@@ -271,9 +273,8 @@ export class DynamicObstacleController {
     // 暴露到全域，讓移除按鈕可以使用
     (window as any).dynamicObstacleController = this;
   }
-
   // 更新動態障礙物（每幀調用）
-  update(mousePoints: any[], deltaTime: number): void {
+  update(mousePoints: MousePoint[], deltaTime: number): void {
     if (!this.config.enabled) return;
 
     // 更新障礙物物理

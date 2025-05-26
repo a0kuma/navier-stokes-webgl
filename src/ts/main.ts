@@ -27,7 +27,7 @@ function updateFluidWithMultiMouse(points: MousePoint[]): void {
   }
 }
 
-// 初始化 WebSocket (設定為 60 FPS，與畫面更新同步)
+// 初始化 WebSocket (設定為 10 FPS)
 const ws = new MultiMouseWS("ws://localhost:9980", updateFluidWithMultiMouse, 10);
 ws.connect();
 
@@ -131,14 +131,31 @@ function main() {
 
         /* If the javascript was paused (tab lost focus), the dt may be too big.
          * In that case we adjust it so the simulation resumes correctly. */
-        dt = Math.min(dt, 1 / 10);
-
-        const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
-
-        // 更新動態障礙物系統
+        dt = Math.min(dt, 1 / 10);        const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];        // 更新動態障礙物系統
         if (dynamicObstacleController && Parameters.obstacles === "dynamic") {
             const multiMousePoints = (window as any).multiMousePoints || [];
+            const obstacleCount = obstacleMaps["dynamic"].getDynamicObstacles().length;
+            
+            // 詳細的調試信息
+            if (multiMousePoints.length > 0) {
+                console.log(`🎯 更新動態障礙物: 收到${multiMousePoints.length}個WS點, 當前有${obstacleCount}個障礙物`);
+                
+                // 顯示每個WS點的詳細信息
+                multiMousePoints.forEach((point: any, index: number) => {
+                    console.log(`  點${index}: 位置[${point.pos[0].toFixed(3)}, ${point.pos[1].toFixed(3)}], 移動[${point.movement[0].toFixed(3)}, ${point.movement[1].toFixed(3)}]`);
+                });
+                
+                // 顯示每個障礙物的詳細信息
+                const obstacles = obstacleMaps["dynamic"].getDynamicObstacles();
+                obstacles.forEach((obs: any, index: number) => {
+                    console.log(`  障礙物${index} (ID:${obs.id}): 位置[${obs.pos[0].toFixed(3)}, ${obs.pos[1].toFixed(3)}], 大小[${obs.size[0].toFixed(3)}, ${obs.size[1].toFixed(3)}], 速度[${obs.vel[0].toFixed(3)}, ${obs.vel[1].toFixed(3)}]`);
+                });
+            }
+            
             dynamicObstacleController.update(multiMousePoints, dt);
+            
+            // 讓動態障礙物的速度影響流體
+            obstacleMap.addDynamicObstacleVelocityToFluid(fluid);
         }
 
         /* Updating */
