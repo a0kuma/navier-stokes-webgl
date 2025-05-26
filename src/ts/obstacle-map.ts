@@ -107,8 +107,7 @@ class ObstacleMap extends GLResource {
     // 清除后重绘所有障碍物
     this.redrawAllDynamicObstacles();
   }
-  // 重绘所有动态障碍物到GPU纹理
-  public redrawAllDynamicObstacles(): void {
+  // 重绘所有动态障碍物到GPU纹理  public redrawAllDynamicObstacles(): void {
     // 先重置為初始狀態（只有邊界）
     this.resetToInitialState();
     
@@ -117,7 +116,8 @@ class ObstacleMap extends GLResource {
     console.log(`🔄 重绘 ${obstacles.length} 個動態障礙物到GPU纹理`);
     for (const obstacle of obstacles) {
       this.addObstacle(obstacle.size, obstacle.pos);
-    }  }
+    }
+  }
   private resetToInitialState(): void {
     const gl = super.gl();
     
