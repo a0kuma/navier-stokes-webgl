@@ -75,7 +75,6 @@ class ObstacleMap extends GLResource {
     addShader.bindUniformsAndAttributes();
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
-
   // 添加動態障礙物相關方法
   public createDynamicObstacle(
     pos: [number, number], 
@@ -84,36 +83,41 @@ class ObstacleMap extends GLResource {
     friction: number = 0.95,
     restitution: number = 0.8
   ): DynamicObstacle {
-    return this._dynamicObstacleSystem.createObstacle(pos, size, mass, friction, restitution);
+    const obstacle = this._dynamicObstacleSystem.createObstacle(pos, size, mass, friction, restitution);
+    
+    // 直接使用GPU shader添加障碍物到纹理
+    this.addObstacle(size, pos);
+    
+    console.log(`🎯 使用GPU创建动态障碍物 ID:${obstacle.id} 位置:[${pos[0].toFixed(3)}, ${pos[1].toFixed(3)}] 大小:[${size[0].toFixed(3)}, ${size[1].toFixed(3)}]`);
+    
+    return obstacle;
   }
   public updateDynamicObstacles(mousePoints: MousePoint[], deltaTime: number): void {
     this._dynamicObstacleSystem.update(mousePoints, deltaTime);
-    this.updateDynamicObstacleTexture();
+    
+    // 直接重绘所有障碍物到GPU纹理
+    this.redrawAllDynamicObstacles();
   }
 
   public getDynamicObstacles(): DynamicObstacle[] {
     return this._dynamicObstacleSystem.getObstacles();
   }
-
   public clearDynamicObstacles(): void {
     this._dynamicObstacleSystem.clear();
+    // 清除后重绘所有障碍物
+    this.redrawAllDynamicObstacles();
   }
-  // 更新動態障礙物到texture
-  private updateDynamicObstacleTexture(): void {
-    const gl = super.gl();
-    
-    console.log(`🔄 更新動態障礙物纹理: texture=${this._texture ? 'OK' : 'NULL'}`);
-    
+  // 重绘所有动态障碍物到GPU纹理
+  public redrawAllDynamicObstacles(): void {
     // 先重置為初始狀態（只有邊界）
     this.resetToInitialState();
     
     // 添加所有動態障礙物
     const obstacles = this._dynamicObstacleSystem.getObstacles();
-    console.log(`🔄 添加 ${obstacles.length} 個動態障礙物到纹理`);
+    console.log(`🔄 重绘 ${obstacles.length} 個動態障礙物到GPU纹理`);
     for (const obstacle of obstacles) {
       this.addObstacle(obstacle.size, obstacle.pos);
-    }
-  }
+    }  }
   private resetToInitialState(): void {
     const gl = super.gl();
     

@@ -113,6 +113,10 @@ function main() {
         mousePointRenderer
     );
 
+    // 暴露給全局，讓其他模組可以訪問
+    (window as any).obstacleMaps = obstacleMaps;
+    (window as any).dynamicObstacleController = dynamicObstacleController;
+
     Parameters.bind(fluid);
 
     /* Update the FPS indicator every second. */
