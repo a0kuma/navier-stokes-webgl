@@ -106,6 +106,7 @@ enum ObstaclesInfo {
     NONE = "none",
     ONE = "one",
     MANY = "many",
+    DYNAMIC = "dynamic",
 }
 let obstaclesInfo: ObstaclesInfo = ObstaclesInfo.NONE;
 
@@ -166,12 +167,19 @@ function bindControls(fluid: Fluid): void {
         const updateStream = (doStream: boolean) => { fluidInfo.stream = doStream; };
         Page.Checkbox.addObserver(STREAM_CONTROL_ID, updateStream);
         updateStream(Page.Checkbox.isChecked(STREAM_CONTROL_ID));
-    }
-    {
+    }    {
         const OBSTACLES_CONTROL_ID = "obstacles";
         const updateObstacles = (values: string[]) => {
             obstaclesInfo = values[0] as ObstaclesInfo;
-
+            
+            // 如果切換到動態模式，重新初始化動態障礙物系統
+            if (obstaclesInfo === ObstaclesInfo.DYNAMIC) {
+                // 通知動態障礙物系統進行重置
+                if ((window as any).dynamicObstacleSystem) {
+                    (window as any).dynamicObstacleSystem.reset();
+                    console.log("🔄 切換到動態障礙物模式，重新初始化障礙物");
+                }
+            }
         };
         Page.Tabs.addObserver(OBSTACLES_CONTROL_ID, updateObstacles);
         updateObstacles(Page.Tabs.getValues(OBSTACLES_CONTROL_ID));

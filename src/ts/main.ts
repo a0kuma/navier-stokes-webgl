@@ -12,11 +12,17 @@ import "./page-interface-generated";
 import { MultiMouseWS, MousePoint } from "./ws-mouse";
 import { MousePointRenderer } from "./mouse-point-renderer";
 
+// [2025新增功能] 動態障礙物系統
+import { DynamicObstacleSystem } from "./dynamic-obstacle";
+
 // 障礙物操作相關變數
 let obstaclePosition = [0.3, 0.5];
 let obstacleMaps: ObstacleMap[] = [];
 let webgl: WebGLRenderingContext;
 let obstacleSize = 256;
+
+// 動態障礙物系統
+let dynamicObstacleSystem: DynamicObstacleSystem | null = null;
 
 let mousePointRenderer: MousePointRenderer | null = null;
 
@@ -37,6 +43,15 @@ function checkCollisionWithObstacles(points: MousePoint[]): void {
   
   const currentObstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
   if (!currentObstacleMap) return;
+  
+  // 根據不同的障礙物模式進行碰撞檢測
+  if (Parameters.obstacles === "dynamic") {
+    // 動態障礙物模式：使用動態障礙物系統進行碰撞檢測
+    if (dynamicObstacleSystem) {
+      dynamicObstacleSystem.checkCollisionWithMousePoints(points);
+    }
+    return;
+  }
   
   points.forEach((point, index) => {
     const [x, y] = point.pos;
@@ -91,6 +106,9 @@ function checkCollisionWithObstacles(points: MousePoint[]): void {
 
 // 將碰撞檢測函數暴露到全域，供 ws-mouse.ts 使用
 (window as any).checkCollisionWithObstacles = checkCollisionWithObstacles;
+
+// 將動態障礙物系統暴露到全域，供 parameters.ts 使用
+(window as any).dynamicObstacleSystem = null;
 
 // 初始化 WebSocket (設定為 60 FPS，與畫面更新同步)
 const ws = new MultiMouseWS("ws://localhost:9980", updateFluidWithMultiMouse, 10);
@@ -167,7 +185,13 @@ function main() {
                 obstacleMaps["many"].addObstacle(size, pos);
             }
         }
-    }    Parameters.bind(fluid);
+    }
+      // 初始化動態障礙物系統
+    dynamicObstacleSystem = new DynamicObstacleSystem();
+    (window as any).dynamicObstacleSystem = dynamicObstacleSystem; // 暴露到全域
+    obstacleMaps["dynamic"] = new ObstacleMap(webgl, size, size);
+    // 為動態障礙物創建初始障礙物地圖
+    rebuildDynamicObstacleMap();Parameters.bind(fluid);
 
     // 設定障礙物鍵盤控制
     setupObstacleControls();
@@ -188,11 +212,15 @@ function main() {
 
         /* If the javascript was paused (tab lost focus), the dt may be too big.
          * In that case we adjust it so the simulation resumes correctly. */
-        dt = Math.min(dt, 1 / 10);
-
-        const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
+        dt = Math.min(dt, 1 / 10);        const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
 
         /* Updating */
+        // 更新動態障礙物（如果啟用）
+        if (Parameters.obstacles === "dynamic" && dynamicObstacleSystem) {
+            // 重建障礙物地圖以反映當前位置
+            rebuildDynamicObstacleMap();
+        }
+        
         if (Parameters.fluid.stream) {
             fluid.addVel([0.1, 0.5], [0.05, 0.2], [0.4, 0]);
         }
@@ -231,6 +259,22 @@ function main() {
 function rebuildObstacleMapOne(obstacleMaps: ObstacleMap[], gl: WebGLRenderingContext, size: number, pos: number[]) {
     obstacleMaps["one"] = new ObstacleMap(gl, size, size);
     obstacleMaps["one"].addObstacle([0.015, 0.015], pos);
+}
+
+// 重建動態障礙物地圖的函數
+function rebuildDynamicObstacleMap() {
+    if (!dynamicObstacleSystem || !webgl) return;
+    
+    // 重新創建動態障礙物地圖
+    obstacleMaps["dynamic"] = new ObstacleMap(webgl, obstacleSize, obstacleSize);
+    
+    // 添加所有動態障礙物到地圖中
+    const obstacles = dynamicObstacleSystem.getObstacles();
+    obstacles.forEach(obstacle => {
+        obstacleMaps["dynamic"].addObstacle(obstacle.size, obstacle.pos);
+    });
+    
+    console.log(`🔄 重建動態障礙物地圖，包含 ${obstacles.length} 個障礙物`);
 }
 
 // 移動障礙物的函數

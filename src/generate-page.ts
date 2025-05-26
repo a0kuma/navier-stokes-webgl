@@ -83,8 +83,7 @@ const data = {
                     title: "Stream",
                     id: "stream-checkbox-id",
                     checked: true
-                },
-                {
+                },                {
                     type: Demopage.supportedControls.Tabs,
                     title: "Obstacles",
                     id: "obstacles",
@@ -102,6 +101,10 @@ const data = {
                             value: "many",
                             label: "Many",
                             checked: true
+                        },
+                        {
+                            value: "dynamic",
+                            label: "Dynamic"
                         }
                     ]
                 }
