@@ -8,6 +8,19 @@ import * as Requirements from "./requirements";
 
 import "./page-interface-generated";
 
+// [2025新增功能] WS模擬多滑鼠 (TypeScript)
+import { MultiMouseWS, MousePoint } from "./ws-mouse";
+
+// callback：把多滑鼠座標給流體模擬
+function updateFluidWithMultiMouse(points: MousePoint[]): void {
+  // 暫存全域供 fluid.ts 使用
+  (window as any).multiMousePoints = points;
+}
+
+// 初始化 WebSocket
+const ws = new MultiMouseWS("ws://localhost:30663", updateFluidWithMultiMouse);
+ws.connect();
+
 /** Initializes a WebGL context */
 function initGL(canvas: HTMLCanvasElement, flags: any): WebGLRenderingContext {
     function setError(message: string) {
