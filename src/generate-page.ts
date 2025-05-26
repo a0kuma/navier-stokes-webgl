@@ -118,8 +118,7 @@ const data = {
                     max: 100,
                     value: 40,
                     step: 1
-                },
-                {
+                },                {
                     type: Demopage.supportedControls.Range,
                     title: "Strength",
                     id: "brush-strength-range-id",
@@ -127,6 +126,20 @@ const data = {
                     max: 200,
                     value: 100,
                     step: 1
+                }
+            ]
+        },
+        {
+            title: "Collision",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Range,
+                    title: "Collision Speed",
+                    id: "collision-speed-range-id",
+                    min: 0.01,
+                    max: 1.0,
+                    value: 0.02,
+                    step: 0.01
                 }
             ]
         },

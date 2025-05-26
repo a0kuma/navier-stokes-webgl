@@ -49,6 +49,23 @@ function checkCollisionWithObstacles(points: MousePoint[]): void {
       );
       if (distance < 0.05) { // 碰撞閾值
         console.log(`WS Mouse Point ${index} 碰撞到障礙物！位置: [${x.toFixed(3)}, ${y.toFixed(3)}], 障礙物位置: [${obstaclePosition[0].toFixed(3)}, ${obstaclePosition[1].toFixed(3)}]`);
+        
+        // 計算從障礙物到鼠標點的向量
+        const vectorX = x - obstaclePosition[0];
+        const vectorY = y - obstaclePosition[1];
+        const vectorLength = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+        
+        if (vectorLength > 0) {
+          // 正規化向量
+          const normalizedX = vectorX / vectorLength;
+          const normalizedY = vectorY / vectorLength;
+          
+          // 障礙物往反方向移動（乘以負號），移動量乘以碰撞速度
+          const moveX = -normalizedX * Parameters.collision.speed;
+          const moveY = -normalizedY * Parameters.collision.speed;
+          
+          moveObstacle(moveX, moveY);
+        }
       }
     } else if (Parameters.obstacles === "many") {
       // 對於多個障礙物，檢查是否在任何一個障礙物範圍內
@@ -63,6 +80,7 @@ function checkCollisionWithObstacles(points: MousePoint[]): void {
           );
           if (distance < 0.03) { // 碰撞閾值稍小因為障礙物較小
             console.log(`WS Mouse Point ${index} 碰撞到多障礙物！位置: [${x.toFixed(3)}, ${y.toFixed(3)}], 障礙物位置: [${obstacleX.toFixed(3)}, ${obstacleY.toFixed(3)}]`);
+            // 注意：多個障礙物目前不支持移動，因為它們是固定生成的
             return; // 只報告第一個碰撞
           }
         }

@@ -122,6 +122,13 @@ const displayInfo: DisplayInfo = {
     obstacles: true,
 }
 
+interface CollisionInfo {
+    speed: number,
+}
+const collisionInfo: CollisionInfo = {
+    speed: 0.1,
+}
+
 function bindControls(fluid: Fluid): void {
     {
         const RESOLUTIONS_CONTROL_ID = "resolution";
@@ -211,9 +218,14 @@ function bindControls(fluid: Fluid): void {
     }
     {
         const DISPLAY_OBSTACLES_CONTROL_ID = "display-obstacles-checkbox-id";
-        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };
-        Page.Checkbox.addObserver(DISPLAY_OBSTACLES_CONTROL_ID, updateDisplayObstacles);
+        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };        Page.Checkbox.addObserver(DISPLAY_OBSTACLES_CONTROL_ID, updateDisplayObstacles);
         updateDisplayObstacles(Page.Checkbox.isChecked(DISPLAY_OBSTACLES_CONTROL_ID));
+    }
+    {
+        const COLLISION_SPEED_CONTROL_ID = "collision-speed-range-id";
+        const updateCollisionSpeed = (speed: number) => { collisionInfo.speed = speed; };
+        Page.Range.addObserver(COLLISION_SPEED_CONTROL_ID, updateCollisionSpeed);
+        updateCollisionSpeed(Page.Range.getValue(COLLISION_SPEED_CONTROL_ID));
     }
 }
 
@@ -228,5 +240,6 @@ export {
     brushInfo as brush,
     displayInfo as display,
     obstaclesInfo as obstacles,
-    fluidInfo as fluid
+    fluidInfo as fluid,
+    collisionInfo as collision
 };

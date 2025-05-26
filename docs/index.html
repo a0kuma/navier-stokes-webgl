@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
-    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-05-26T19%3A19%3A48.767Z">
+    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-05-26T19%3A37%3A22.516Z">
   </head>
 
   <body>
@@ -217,6 +217,37 @@
           </section>
           <hr />
           <section class="controls-section">
+            <h2>Collision</h2>
+
+            <div class="controls-list">
+              <div class="control" id="control-collision-speed-range-id">
+                <label>Collision Speed:</label>
+                <div class="range-container">
+                  <input type="range" min="0.01" max="1" value="0.1" step="0.01" class="slider" id="collision-speed-range-id">
+                  <div class="range-skin-container">
+                    <div class="range-stub">
+                      <span class="range-bar range-bar-left range-stub-left"></span>
+                    </div>
+                    <div class="range-progress">
+                      <div class="range-progress-left">
+                        <span class="range-bar range-bar-left"></span>
+                        <span class="range-handle"></span>
+                        <output for="collision-speed-range-id" class="range-tooltip"></output>
+                      </div>
+                      <div class="range-progress-right">
+                        <span class="range-bar range-bar-right"></span>
+                      </div>
+                    </div>
+                    <div class="range-stub">
+                      <span class="range-bar range-bar-right range-stub-right"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <hr />
+          <section class="controls-section">
             <h2>Display</h2>
 
             <div class="controls-list">
@@ -299,12 +330,12 @@
     <script type="text/javascript">
       var Page = Page || {};
       Object.defineProperty(Page, "version", {
-        value: "2025-05-26T19%3A19%3A48.767Z",
+        value: "2025-05-26T19%3A37%3A22.516Z",
         writable: false,
       });
     </script>
-    <script src="script/page.min.js?v=2025-05-26T19%3A19%3A48.767Z"></script>
-    <script src="script/main.min.js?v=2025-05-26T19%3A19%3A48.767Z"></script>
+    <script src="script/page.min.js?v=2025-05-26T19%3A37%3A22.516Z"></script>
+    <script src="script/main.min.js?v=2025-05-26T19%3A37%3A22.516Z"></script>
   </body>
 
 </html>
