@@ -115,12 +115,14 @@ interface DisplayInfo {
     pressure: boolean,
     brush: boolean,
     obstacles: boolean,
+    mousePoints: boolean,
 }
 const displayInfo: DisplayInfo = {
     velocity: true,
     pressure: true,
     brush: true,
     obstacles: true,
+    mousePoints: true,
 }
 
 interface CollisionInfo {
@@ -240,8 +242,15 @@ function bindControls(fluid: Fluid): void {
     }
     {
         const DISPLAY_OBSTACLES_CONTROL_ID = "display-obstacles-checkbox-id";
-        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };        Page.Checkbox.addObserver(DISPLAY_OBSTACLES_CONTROL_ID, updateDisplayObstacles);
+        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };        
+        Page.Checkbox.addObserver(DISPLAY_OBSTACLES_CONTROL_ID, updateDisplayObstacles);
         updateDisplayObstacles(Page.Checkbox.isChecked(DISPLAY_OBSTACLES_CONTROL_ID));
+    }
+    {
+        const DISPLAY_MOUSE_POINTS_CONTROL_ID = "display-mouse-points-checkbox-id";
+        const updateDisplayMousePoints = (display: boolean) => { displayInfo.mousePoints = display; };
+        Page.Checkbox.addObserver(DISPLAY_MOUSE_POINTS_CONTROL_ID, updateDisplayMousePoints);
+        updateDisplayMousePoints(Page.Checkbox.isChecked(DISPLAY_MOUSE_POINTS_CONTROL_ID));
     }
     {
         const COLLISION_SPEED_CONTROL_ID = "collision-speed-range-id";

@@ -31,8 +31,9 @@ function updateFluidWithMultiMouse(points: MousePoint[]): void {
   // 暫存全域供 fluid.ts 使用
   (window as any).multiMousePoints = points;
   
-  // 更新點的視覺化
+  // 更新點的視覺化（根據參數控制是否顯示）
   if (mousePointRenderer) {
+    mousePointRenderer.setVisible(Parameters.display.mousePoints);
     mousePointRenderer.updatePoints(points);
   }
 }

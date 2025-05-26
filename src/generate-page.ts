@@ -192,6 +192,12 @@ const data = {
                     title: "Obstacles",
                     id: "display-obstacles-checkbox-id",
                     checked: true
+                },
+                {
+                    type: Demopage.supportedControls.Checkbox,
+                    title: "Mouse Points",
+                    id: "display-mouse-points-checkbox-id",
+                    checked: true
                 }
             ]
         }
