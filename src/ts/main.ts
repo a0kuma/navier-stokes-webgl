@@ -11,8 +11,10 @@ import "./page-interface-generated";
 // [2025新增功能] WS模擬多滑鼠 (TypeScript)
 import { MultiMouseWS, MousePoint } from "./ws-mouse";
 import { MousePointRenderer } from "./mouse-point-renderer";
+import { DynamicObstacleController } from "./dynamic-obstacle-controller";
 
 let mousePointRenderer: MousePointRenderer | null = null;
+let dynamicObstacleController: DynamicObstacleController | null = null;
 
 // callback：把多滑鼠座標給流體模擬和視覺化
 function updateFluidWithMultiMouse(points: MousePoint[]): void {
