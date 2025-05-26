@@ -72,9 +72,7 @@ function main() {
         return;
 
     // TypeScript doesn't know that gl is non-null after the above check
-    const webgl: WebGLRenderingContext = gl;
-
-    // 初始化滑鼠點渲染器
+    const webgl: WebGLRenderingContext = gl;    // 初始化滑鼠點渲染器
     mousePointRenderer = new MousePointRenderer(canvas);
 
     const extensions: string[] = [
@@ -105,6 +103,15 @@ function main() {
             }
         }
     }
+    
+    // 添加動態障礙物新類別到障礙物選項
+    obstacleMaps["dynamic"] = new ObstacleMap(webgl, size, size);
+    
+    // 初始化動態障礙物控制器
+    dynamicObstacleController = new DynamicObstacleController(
+        obstacleMaps["dynamic"], 
+        mousePointRenderer
+    );
 
     Parameters.bind(fluid);
 
@@ -127,6 +134,12 @@ function main() {
         dt = Math.min(dt, 1 / 10);
 
         const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
+
+        // 更新動態障礙物系統
+        if (dynamicObstacleController && Parameters.obstacles === "dynamic") {
+            const multiMousePoints = (window as any).multiMousePoints || [];
+            dynamicObstacleController.update(multiMousePoints, dt);
+        }
 
         /* Updating */
         if (Parameters.fluid.stream) {

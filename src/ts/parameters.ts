@@ -106,6 +106,7 @@ enum ObstaclesInfo {
     NONE = "none",
     ONE = "one",
     MANY = "many",
+    DYNAMIC = "dynamic",
 }
 let obstaclesInfo: ObstaclesInfo = ObstaclesInfo.NONE;
 

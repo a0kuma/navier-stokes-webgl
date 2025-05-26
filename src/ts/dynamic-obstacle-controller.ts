@@ -233,14 +233,21 @@ export class DynamicObstacleController {
       enableToggle.addEventListener('change', (e) => {
         this.setEnabled((e.target as HTMLInputElement).checked);
       });
-    }
-
-    // 配置更新
+    }    // 配置更新
     ['maxObstacles', 'defaultMass', 'defaultFriction', 'defaultRestitution'].forEach(id => {
       const input = this.controlPanel!.querySelector(`#${id}`) as HTMLInputElement;
       if (input) {
         input.addEventListener('change', () => {
-          this.config[id as keyof DynamicObstacleControlConfig] = parseFloat(input.value) as any;
+          const value = parseFloat(input.value);
+          if (id === 'maxObstacles') {
+            this.config.maxObstacles = value;
+          } else if (id === 'defaultMass') {
+            this.config.defaultMass = value;
+          } else if (id === 'defaultFriction') {
+            this.config.defaultFriction = value;
+          } else if (id === 'defaultRestitution') {
+            this.config.defaultRestitution = value;
+          }
         });
       }
     });
