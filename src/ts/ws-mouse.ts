@@ -42,8 +42,7 @@ export class MultiMouseWS {
       console.error('WS error', err);
       this.isConnected = false;
     };
-    
-    this.ws.onmessage = (ev: MessageEvent) => {
+      this.ws.onmessage = (ev: MessageEvent) => {
       try {
         const data = JSON.parse(ev.data);
         // 支援格式: [[x, y], ...] 或 [{pos:[x,y], movement:[dx,dy]}, ...]
@@ -53,6 +52,12 @@ export class MultiMouseWS {
           } else {
             this.points = (data as [number, number][]).map(([x, y]) => ({ pos: [x, y], movement: [0, 0] }));
           }
+          
+          // 檢查與障礙物的碰撞並 console log
+          if ((window as any).checkCollisionWithObstacles && this.points.length > 0) {
+            (window as any).checkCollisionWithObstacles(this.points);
+          }
+          
           if (this.onPointsUpdate) this.onPointsUpdate(this.points);
         }
       } catch (e) {

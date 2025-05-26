@@ -31,6 +31,49 @@ function updateFluidWithMultiMouse(points: MousePoint[]): void {
   }
 }
 
+// 檢查滑鼠點是否與障礙物碰撞
+function checkCollisionWithObstacles(points: MousePoint[]): void {
+  if (!obstacleMaps || !webgl) return;
+  
+  const currentObstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
+  if (!currentObstacleMap) return;
+  
+  points.forEach((point, index) => {
+    const [x, y] = point.pos;
+    // 檢查點是否在障礙物內
+    // 這裡我們簡化檢測：如果有 "one" 障礙物，檢查是否在障礙物附近
+    if (Parameters.obstacles === "one") {
+      const distance = Math.sqrt(
+        Math.pow(x - obstaclePosition[0], 2) + 
+        Math.pow(y - obstaclePosition[1], 2)
+      );
+      if (distance < 0.05) { // 碰撞閾值
+        console.log(`WS Mouse Point ${index} 碰撞到障礙物！位置: [${x.toFixed(3)}, ${y.toFixed(3)}], 障礙物位置: [${obstaclePosition[0].toFixed(3)}, ${obstaclePosition[1].toFixed(3)}]`);
+      }
+    } else if (Parameters.obstacles === "many") {
+      // 對於多個障礙物，檢查是否在任何一個障礙物範圍內
+      // 基於 "many" 障礙物的生成模式檢查
+      for (let iX = 0; iX < 5; ++iX) {
+        for (let iY = -iX / 2; iY <= iX / 2; ++iY) {
+          const obstacleX = 0.3 + iX * 0.07;
+          const obstacleY = 0.5 + iY * 0.08;
+          const distance = Math.sqrt(
+            Math.pow(x - obstacleX, 2) + 
+            Math.pow(y - obstacleY, 2)
+          );
+          if (distance < 0.03) { // 碰撞閾值稍小因為障礙物較小
+            console.log(`WS Mouse Point ${index} 碰撞到多障礙物！位置: [${x.toFixed(3)}, ${y.toFixed(3)}], 障礙物位置: [${obstacleX.toFixed(3)}, ${obstacleY.toFixed(3)}]`);
+            return; // 只報告第一個碰撞
+          }
+        }
+      }
+    }
+  });
+}
+
+// 將碰撞檢測函數暴露到全域，供 ws-mouse.ts 使用
+(window as any).checkCollisionWithObstacles = checkCollisionWithObstacles;
+
 // 初始化 WebSocket (設定為 60 FPS，與畫面更新同步)
 const ws = new MultiMouseWS("ws://localhost:9980", updateFluidWithMultiMouse, 10);
 ws.connect();
@@ -203,12 +246,12 @@ function setupObstacleControls() {
             case 'ArrowUp':
             case 'w':
             case 'W':
-                moveObstacle(0, -moveStep);
+                moveObstacle(0, moveStep);//重要:原點的位置要注意，這裡的正負號是對的
                 break;
             case 'ArrowDown':
             case 's':
             case 'S':
-                moveObstacle(0, moveStep);
+                moveObstacle(0, -moveStep);//重要:原點的位置要注意，這裡的正負號是對的
                 break;
         }
     });
