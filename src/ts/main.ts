@@ -10,24 +10,32 @@ import "./page-interface-generated";
 
 // [2025新增功能] WS模擬多滑鼠 (TypeScript)
 import { MultiMouseWS, MousePoint } from "./ws-mouse";
+import { MousePointRenderer } from "./mouse-point-renderer";
 
-// callback：把多滑鼠座標給流體模擬
+let mousePointRenderer: MousePointRenderer | null = null;
+
+// callback：把多滑鼠座標給流體模擬和視覺化
 function updateFluidWithMultiMouse(points: MousePoint[]): void {
   // 暫存全域供 fluid.ts 使用
   (window as any).multiMousePoints = points;
+  
+  // 更新點的視覺化
+  if (mousePointRenderer) {
+    mousePointRenderer.updatePoints(points);
+  }
 }
 
-// 初始化 WebSocket
-const ws = new MultiMouseWS("ws://localhost:30663", updateFluidWithMultiMouse);
+// 初始化 WebSocket (設定為 60 FPS，與畫面更新同步)
+const ws = new MultiMouseWS("ws://localhost:9980", updateFluidWithMultiMouse, 10);
 ws.connect();
 
 /** Initializes a WebGL context */
-function initGL(canvas: HTMLCanvasElement, flags: any): WebGLRenderingContext {
+function initGL(canvas: HTMLCanvasElement, flags: any): WebGLRenderingContext | null {
     function setError(message: string) {
         Page.Demopage.setErrorMessage("webgl-support", message);
     }
 
-    let gl: WebGLRenderingContext = canvas.getContext("webgl", flags) as WebGLRenderingContext;
+    let gl: WebGLRenderingContext | null = canvas.getContext("webgl", flags) as WebGLRenderingContext;
     if (!gl) {
         gl = canvas.getContext("experimental-webgl", flags) as WebGLRenderingContext;
         if (!gl) {
@@ -52,29 +60,39 @@ function initGL(canvas: HTMLCanvasElement, flags: any): WebGLRenderingContext {
 }
 
 function main() {
-    const canvas: HTMLCanvasElement = Page.Canvas.getCanvas();
-    const gl: WebGLRenderingContext = initGL(canvas, { alpha: false });
+    const canvas: HTMLCanvasElement | null = Page.Canvas.getCanvas();
+    if (!canvas) {
+        console.error("Canvas element not found");
+        return;
+    }
+      const gl: WebGLRenderingContext | null = initGL(canvas, { alpha: false });
     if (!gl || !Requirements.check(gl))
         return;
+
+    // TypeScript doesn't know that gl is non-null after the above check
+    const webgl: WebGLRenderingContext = gl;
+
+    // 初始化滑鼠點渲染器
+    mousePointRenderer = new MousePointRenderer(canvas);
 
     const extensions: string[] = [
         "OES_texture_float",
         "WEBGL_color_buffer_float",
         "OES_texture_float_linear",
     ];
-    Requirements.loadExtensions(gl, extensions);
+    Requirements.loadExtensions(webgl, extensions);
 
     const size = 256;
 
-    const fluid = new Fluid(gl, size, size);
-    const brush = new Brush(gl);
+    const fluid = new Fluid(webgl, size, size);
+    const brush = new Brush(webgl);
     const obstacleMaps: ObstacleMap[] = [];
-    obstacleMaps["none"] = new ObstacleMap(gl, size, size);
-    obstacleMaps["one"] = new ObstacleMap(gl, size, size);
+    obstacleMaps["none"] = new ObstacleMap(webgl, size, size);
+    obstacleMaps["one"] = new ObstacleMap(webgl, size, size);
     {
         obstacleMaps["one"].addObstacle([0.015, 0.015], [0.3, 0.5]);
     }
-    obstacleMaps["many"] = new ObstacleMap(gl, size, size);
+    obstacleMaps["many"] = new ObstacleMap(webgl, size, size);
     {
         let size = [0.012, 0.012];
         for (let iX = 0; iX < 5; ++iX) {
@@ -115,8 +133,8 @@ function main() {
         fluid.update(obstacleMap);
 
         /* Drawing */
-        FBO.bindDefault(gl);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        FBO.bindDefault(webgl);
+        webgl.clear(webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT);
 
         if (Parameters.display.velocity) {
             fluid.drawVelocity();
@@ -133,7 +151,7 @@ function main() {
         }
 
         if (Parameters.display.velocity && Parameters.display.pressure) {
-            gl.viewport(10, 10, 128, 128);
+            webgl.viewport(10, 10, 128, 128);
             fluid.drawPressure();
         }
 

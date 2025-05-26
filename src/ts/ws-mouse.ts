@@ -10,19 +10,39 @@ export class MultiMouseWS {
   points: MousePoint[];
   onPointsUpdate?: PointsUpdateCallback;
   ws: WebSocket | null;
+  private isConnected: boolean;
+  private fps: number;
+  private sendInterval: number | null;
 
-  constructor(url: string, onPointsUpdate?: PointsUpdateCallback) {
+  constructor(url: string, onPointsUpdate?: PointsUpdateCallback, fps: number = 10) {
     this.url = url;
     this.points = [];
     this.onPointsUpdate = onPointsUpdate;
     this.ws = null;
+    this.isConnected = false;
+    this.fps = fps;
+    this.sendInterval = null;
   }
-
   connect(): void {
     this.ws = new WebSocket(this.url);
-    this.ws.onopen = () => console.log('WS connected');
-    this.ws.onclose = () => console.log('WS closed');
-    this.ws.onerror = (err) => console.error('WS error', err);
+    
+    this.ws.onopen = () => {
+      console.log('WS connected');
+      this.isConnected = true;
+      this.startSendLoop();
+    };
+    
+    this.ws.onclose = () => {
+      console.log('WS closed');
+      this.isConnected = false;
+      this.stopSendLoop();
+    };
+    
+    this.ws.onerror = (err) => {
+      console.error('WS error', err);
+      this.isConnected = false;
+    };
+    
     this.ws.onmessage = (ev: MessageEvent) => {
       try {
         const data = JSON.parse(ev.data);
@@ -39,5 +59,38 @@ export class MultiMouseWS {
         console.warn('Non-JSON message:', ev.data);
       }
     };
+  }
+
+  private startSendLoop(): void {
+    const interval = 1000 / this.fps;
+    this.sendInterval = window.setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send('detect');
+      }
+    }, interval);
+  }
+
+  private stopSendLoop(): void {
+    if (this.sendInterval !== null) {
+      clearInterval(this.sendInterval);
+      this.sendInterval = null;
+    }
+  }
+
+  disconnect(): void {
+    this.stopSendLoop();
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+    this.isConnected = false;
+  }
+
+  setFPS(fps: number): void {
+    this.fps = fps;
+    if (this.isConnected) {
+      this.stopSendLoop();
+      this.startSendLoop();
+    }
   }
 }

@@ -26,5 +26,8 @@
     "webpack": "^5.86.0",
     "webpack-cli": "^5.1.4",
     "webpage-templates": "github:piellardj/webpage-templates"
+  },
+  "dependencies": {
+    "ws": "^8.18.2"
   }
 }

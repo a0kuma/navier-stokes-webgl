@@ -116,24 +116,27 @@ class Fluid extends GLResource {
   public get velTexture(): WebGLTexture {
     return this._velTextures[this.currIndex];
   }
-
   public update(obstacleMap: ObstacleMap): void {
     const gl = super.gl();
     const dt = this.timestep;
 
     gl.clearColor(0.5, 0, 0.5, 0);
 
-    if (Page.Canvas.isMouseDown()) {
-      const canvas = gl.canvas as HTMLCanvasElement;
-      const canvasSize = [canvas.clientWidth, canvas.clientHeight];
-      const brushSize = [
-        Parameters.brush.radius / canvasSize[0],
-        Parameters.brush.radius / canvasSize[1]
-      ];
-      const pos = Parameters.mouse.pos;
+    // 使用 WebSocket 座標陣列，取代滑鼠事件
+    let multiPoints = (window as any).multiMousePoints || [];
+    const canvas = gl.canvas as HTMLCanvasElement;
+    const canvasSize = [canvas.clientWidth, canvas.clientHeight];
+    const brushSize = [
+      Parameters.brush.radius / canvasSize[0],
+      Parameters.brush.radius / canvasSize[1]
+    ];
+    
+    // 處理從 WebSocket 取得的座標點
+    for (const pt of multiPoints) {
+      const pos = pt.pos;
       const vel = [
-        Parameters.mouse.movement[0] * Parameters.brush.strength,
-        Parameters.mouse.movement[1] * Parameters.brush.strength,
+        pt.movement[0] * Parameters.brush.strength,
+        pt.movement[1] * Parameters.brush.strength,
       ];
       this.addVel(pos, brushSize, vel);
     }
