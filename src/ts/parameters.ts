@@ -137,6 +137,15 @@ const fullscreenInfo: FullscreenInfo = {
     isFullscreen: false,
 }
 
+interface ResolutionInfo {
+    width: number,
+    height: number,
+}
+const resolutionInfo: ResolutionInfo = {
+    width: 512,
+    height: 512,
+}
+
 // Fullscreen functionality
 function handleFullscreenToggle(isFullscreen: boolean): void {
     const canvas = Page.Canvas.getCanvas();
@@ -397,6 +406,71 @@ function bindControls(fluid: Fluid): void {
             }
         }, 100); // Small delay to ensure DOM is loaded
     }
+    
+    // Resolution button handlers
+    {
+        const RESOLUTION_1920x1080_BUTTON_ID = "resolution-1920x1080-button-id";
+        const setResolution1920x1080 = () => {
+            resolutionInfo.width = 1920;
+            resolutionInfo.height = 1080;
+            
+            const canvas = Page.Canvas.getCanvas();
+            if (canvas) {
+                canvas.width = 1920;
+                canvas.height = 1080;
+                
+                // Update WebGL viewport
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl && gl instanceof WebGLRenderingContext) {
+                    gl.viewport(0, 0, 1920, 1080);
+                }
+                
+                // Trigger canvas resize observers
+                Page.Canvas.Observers.canvasResize.forEach(observer => observer(1920, 1080));
+                
+                console.log("Resolution set to 1920×1080");
+            }
+        };
+        
+        setTimeout(() => {
+            const button = document.getElementById(RESOLUTION_1920x1080_BUTTON_ID);
+            if (button) {
+                button.addEventListener('click', setResolution1920x1080);
+            }
+        }, 100);
+    }
+    
+    {
+        const RESOLUTION_1280x720_BUTTON_ID = "resolution-1280x720-button-id";
+        const setResolution1280x720 = () => {
+            resolutionInfo.width = 1280;
+            resolutionInfo.height = 720;
+            
+            const canvas = Page.Canvas.getCanvas();
+            if (canvas) {
+                canvas.width = 1280;
+                canvas.height = 720;
+                
+                // Update WebGL viewport
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl && gl instanceof WebGLRenderingContext) {
+                    gl.viewport(0, 0, 1280, 720);
+                }
+                
+                // Trigger canvas resize observers
+                Page.Canvas.Observers.canvasResize.forEach(observer => observer(1280, 720));
+                
+                console.log("Resolution set to 1280×720");
+            }
+        };
+        
+        setTimeout(() => {
+            const button = document.getElementById(RESOLUTION_1280x720_BUTTON_ID);
+            if (button) {
+                button.addEventListener('click', setResolution1280x720);
+            }
+        }, 100);
+    }
 }
 
 function bind(fluid: Fluid): void {
@@ -412,5 +486,6 @@ export {
     obstaclesInfo as obstacles,
     fluidInfo as fluid,
     collisionInfo as collision,
-    fullscreenInfo as fullscreen
+    fullscreenInfo as fullscreen,
+    resolutionInfo as resolution
 };

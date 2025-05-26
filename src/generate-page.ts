@@ -145,6 +145,20 @@ const data = {
                     step: 0.01
                 }
             ]
+        },        {
+            title: "Resolution Controls",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Button,
+                    id: "resolution-1920x1080-button-id",
+                    label: "Set 1920×1080"
+                },
+                {
+                    type: Demopage.supportedControls.Button,
+                    id: "resolution-1280x720-button-id",
+                    label: "Set 1280×720"
+                }
+            ]
         },
         {
             title: "Fullscreen",
