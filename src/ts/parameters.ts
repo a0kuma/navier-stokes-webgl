@@ -134,8 +134,22 @@ function bindControls(fluid: Fluid): void {
     {
         const RESOLUTIONS_CONTROL_ID = "resolution";
         const updateResolution = (values: string[]) => {
-            const size: number = +values[0];
-            fluid.reset(size, size);
+            const resolutionValue: string = values[0];
+            let width: number, height: number;
+            
+            // 處理不同的解析度格式
+            if (resolutionValue.includes('x')) {
+                // 處理 "1920x1080" 或 "1280x720" 格式
+                const [w, h] = resolutionValue.split('x');
+                width = +w;
+                height = +h;
+            } else {
+                // 處理正方形解析度 "128", "256", "512"
+                width = height = +resolutionValue;
+            }
+            
+            console.log(`🔧 設定解析度: ${width}×${height}`);
+            fluid.reset(width, height);
         };
         Page.Tabs.addObserver(RESOLUTIONS_CONTROL_ID, updateResolution);
         updateResolution(Page.Tabs.getValues(RESOLUTIONS_CONTROL_ID));

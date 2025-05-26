@@ -23,11 +23,10 @@ const data = {
             id: "fps",
             label: "FPS"
         }
-    ],
-    canvas: {
-        width: 512,
-        height: 512,
-        enableFullscreen: false
+    ],    canvas: {
+        width: 1920,
+        height: 1080,
+        enableFullscreen: true
     },
     controlsSections: [
         {
@@ -37,8 +36,7 @@ const data = {
                     type: Demopage.supportedControls.Tabs,
                     title: "Resolution",
                     id: "resolution",
-                    unique: true,
-                    options: [
+                    unique: true,                    options: [
                         {
                             value: "128",
                             label: "128"
@@ -51,6 +49,14 @@ const data = {
                         {
                             value: "512",
                             label: "512"
+                        },
+                        {
+                            value: "1280x720",
+                            label: "1280×720"
+                        },
+                        {
+                            value: "1920x1080",
+                            label: "1920×1080"
                         }
                     ]
                 },
