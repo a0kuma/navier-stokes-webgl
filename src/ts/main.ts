@@ -270,6 +270,21 @@ function main() {
     }
 
     requestAnimationFrame(mainLoop);
+
+    // Add fullscreen canvas resize handling
+    Page.Canvas.Observers.canvasResize.push((newWidth: number, newHeight: number) => {
+        if (webgl) {
+            webgl.viewport(0, 0, newWidth, newHeight);
+            fluid.reset(newWidth > newHeight ? size : Math.floor(size * newWidth / newHeight), 
+                       newHeight > newWidth ? size : Math.floor(size * newHeight / newWidth));
+        }
+    });
+
+    // Add fullscreen toggle observer
+    Page.Canvas.Observers.fullscreenToggle.push((isFullscreen: boolean) => {
+        console.log(`Fullscreen state changed: ${isFullscreen}`);
+        // Additional fullscreen handling if needed
+    });
 }
 
 // 重建單一障礙物地圖的函數

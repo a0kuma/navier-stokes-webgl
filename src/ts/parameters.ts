@@ -130,6 +130,154 @@ const collisionInfo: CollisionInfo = {
     speed: 0.1,
 }
 
+interface FullscreenInfo {
+    isFullscreen: boolean,
+}
+const fullscreenInfo: FullscreenInfo = {
+    isFullscreen: false,
+}
+
+// Fullscreen functionality
+function handleFullscreenToggle(isFullscreen: boolean): void {
+    const canvas = Page.Canvas.getCanvas();
+    const canvasContainer = Page.Canvas.getCanvasContainer();
+    
+    if (!canvas || !canvasContainer) {
+        console.warn("Canvas or canvas container not found");
+        return;
+    }
+
+    if (isFullscreen) {
+        // Enter fullscreen mode
+        enterFullscreenMode(canvas, canvasContainer);
+    } else {
+        // Exit fullscreen mode  
+        exitFullscreenMode(canvas, canvasContainer);
+    }
+    
+    // Update button text
+    updateFullscreenButtonText(isFullscreen);
+}
+
+function enterFullscreenMode(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+    // Request browser fullscreen
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if ((document.documentElement as any).webkitRequestFullscreen) {
+        (document.documentElement as any).webkitRequestFullscreen();
+    } else if ((document.documentElement as any).msRequestFullscreen) {
+        (document.documentElement as any).msRequestFullscreen();
+    }
+    
+    // Hide UI elements (controls, headers, etc.)
+    const controlsSections = document.querySelectorAll('.controls-section, .section-header, .demopage-header, .demopage-footer');
+    controlsSections.forEach(section => {
+        (section as HTMLElement).style.display = 'none';
+    });
+    
+    // Hide scrollbars
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    // Make canvas fill the viewport
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.zIndex = '9999';
+    
+    // Resize canvas to viewport resolution
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    canvas.width = viewportWidth;
+    canvas.height = viewportHeight;
+      // Update WebGL viewport if the context exists
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl && gl instanceof WebGLRenderingContext) {
+        gl.viewport(0, 0, viewportWidth, viewportHeight);
+    }
+    
+    // Store original canvas size for restoration
+    (canvas as any)._originalSize = Page.Canvas.getSize();
+    
+    console.log(`Entered fullscreen mode: ${viewportWidth}x${viewportHeight}`);
+}
+
+function exitFullscreenMode(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+    // Exit browser fullscreen
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+    } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+    }
+    
+    // Restore UI elements
+    const controlsSections = document.querySelectorAll('.controls-section, .section-header, .demopage-header, .demopage-footer');
+    controlsSections.forEach(section => {
+        (section as HTMLElement).style.display = '';
+    });
+    
+    // Restore scrollbars
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    
+    // Restore canvas styling
+    canvas.style.position = '';
+    canvas.style.top = '';
+    canvas.style.left = '';
+    canvas.style.width = '';
+    canvas.style.height = '';
+    canvas.style.zIndex = '';
+    
+    // Restore original canvas size
+    const originalSize = (canvas as any)._originalSize;
+    if (originalSize) {
+        canvas.width = originalSize[0];
+        canvas.height = originalSize[1];
+          // Update WebGL viewport
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl && gl instanceof WebGLRenderingContext) {
+            gl.viewport(0, 0, originalSize[0], originalSize[1]);
+        }
+    }
+    
+    console.log("Exited fullscreen mode");
+}
+
+function updateFullscreenButtonText(isFullscreen: boolean): void {
+    const button = document.getElementById("fullscreen-button-id");
+    if (button) {
+        button.textContent = isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen";
+    }
+}
+
+// Listen for browser fullscreen change events to sync state
+document.addEventListener('fullscreenchange', () => {
+    const isFullscreen = !!document.fullscreenElement;
+    if (fullscreenInfo.isFullscreen !== isFullscreen) {
+        fullscreenInfo.isFullscreen = isFullscreen;
+        if (!isFullscreen) {
+            // Browser exited fullscreen (e.g., ESC key), update our state
+            exitFullscreenMode(
+                Page.Canvas.getCanvas()!,
+                Page.Canvas.getCanvasContainer()!
+            );
+        }
+        updateFullscreenButtonText(isFullscreen);
+    }
+});
+
+// Handle ESC key to exit fullscreen
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && fullscreenInfo.isFullscreen) {
+        fullscreenInfo.isFullscreen = false;
+        handleFullscreenToggle(false);
+    }
+});
+
 function bindControls(fluid: Fluid): void {
     {
         const RESOLUTIONS_CONTROL_ID = "resolution";
@@ -234,6 +382,20 @@ function bindControls(fluid: Fluid): void {
         const updateCollisionSpeed = (speed: number) => { collisionInfo.speed = speed; };
         Page.Range.addObserver(COLLISION_SPEED_CONTROL_ID, updateCollisionSpeed);
         updateCollisionSpeed(Page.Range.getValue(COLLISION_SPEED_CONTROL_ID));
+    }    {
+        const FULLSCREEN_BUTTON_ID = "fullscreen-button-id";
+        const toggleFullscreen = () => {
+            fullscreenInfo.isFullscreen = !fullscreenInfo.isFullscreen;
+            handleFullscreenToggle(fullscreenInfo.isFullscreen);
+        };
+        
+        // Use DOM event handling for button click since Page.Button API doesn't exist
+        setTimeout(() => {
+            const button = document.getElementById(FULLSCREEN_BUTTON_ID);
+            if (button) {
+                button.addEventListener('click', toggleFullscreen);
+            }
+        }, 100); // Small delay to ensure DOM is loaded
     }
 }
 
@@ -249,5 +411,6 @@ export {
     displayInfo as display,
     obstaclesInfo as obstacles,
     fluidInfo as fluid,
-    collisionInfo as collision
+    collisionInfo as collision,
+    fullscreenInfo as fullscreen
 };

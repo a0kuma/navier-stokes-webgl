@@ -147,6 +147,16 @@ const data = {
             ]
         },
         {
+            title: "Fullscreen",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Button,
+                    id: "fullscreen-button-id",
+                    label: "Enter Fullscreen"
+                }
+            ]
+        },
+        {
             title: "Display",
             controls: [
                 {
