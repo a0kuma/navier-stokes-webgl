@@ -27,20 +27,19 @@ class Fluid extends GLResource {
   private _divergenceShader: Shader;
   private _substractGradientShader: Shader;
   private _obstaclesVelocityShader: Shader;
-
   public viscosity: number;
   public dx: number;
   public timestep: number;
   public colorIntensity: number;
   public color: boolean;
+  public warmColors: boolean;
 
   constructor(gl: WebGLRenderingContext, width: number, height: number) {
-    super(gl);
-
-    this._useFloatTextures = false;
+    super(gl);    this._useFloatTextures = false;
     this.viscosity = 0.0002;
     this.colorIntensity = 0.033;
     this.color = true;
+    this.warmColors = false;
 
     this.reset(width, height);
   }
@@ -166,13 +165,13 @@ class Fluid extends GLResource {
 
     this.switchBuffers();
   }
-
   public drawVelocity(): void {
     const gl = this.gl();
     const drawShader = this._drawVelocityShader;
     drawShader.u["uVel"].value = this._velTextures[this.currIndex];
     drawShader.u["uColorIntensity"].value = this.colorIntensity;
     drawShader.u["uBlacknWhite"].value = !this.color;
+    drawShader.u["uWarmColors"].value = this.warmColors;
 
     drawShader.use();
     drawShader.bindUniformsAndAttributes();

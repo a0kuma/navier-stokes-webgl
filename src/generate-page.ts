@@ -189,6 +189,12 @@ const data = {
                 },
                 {
                     type: Demopage.supportedControls.Checkbox,
+                    title: "Warm Colors (Lava)",
+                    id: "display-warm-colors-checkbox-id",
+                    checked: false
+                },
+                {
+                    type: Demopage.supportedControls.Checkbox,
                     title: "Obstacles",
                     id: "display-obstacles-checkbox-id",
                     checked: true

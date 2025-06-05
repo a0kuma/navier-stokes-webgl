@@ -116,6 +116,7 @@ interface DisplayInfo {
     brush: boolean,
     obstacles: boolean,
     mousePoints: boolean,
+    warmColors: boolean,
 }
 const displayInfo: DisplayInfo = {
     velocity: true,
@@ -123,6 +124,7 @@ const displayInfo: DisplayInfo = {
     brush: true,
     obstacles: true,
     mousePoints: true,
+    warmColors: false,
 }
 
 interface CollisionInfo {
@@ -251,6 +253,14 @@ function bindControls(fluid: Fluid): void {
         const updateDisplayMousePoints = (display: boolean) => { displayInfo.mousePoints = display; };
         Page.Checkbox.addObserver(DISPLAY_MOUSE_POINTS_CONTROL_ID, updateDisplayMousePoints);
         updateDisplayMousePoints(Page.Checkbox.isChecked(DISPLAY_MOUSE_POINTS_CONTROL_ID));
+    }    {
+        const DISPLAY_WARM_COLORS_CONTROL_ID = "display-warm-colors-checkbox-id";
+        const updateDisplayWarmColors = (display: boolean) => { 
+            displayInfo.warmColors = display;
+            fluid.warmColors = display;
+        };
+        Page.Checkbox.addObserver(DISPLAY_WARM_COLORS_CONTROL_ID, updateDisplayWarmColors);
+        updateDisplayWarmColors(Page.Checkbox.isChecked(DISPLAY_WARM_COLORS_CONTROL_ID));
     }
     {
         const COLLISION_SPEED_CONTROL_ID = "collision-speed-range-id";
