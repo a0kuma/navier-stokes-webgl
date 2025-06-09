@@ -15,10 +15,12 @@ export interface DynamicObstacle {
 export class DynamicObstacleSystem {
   private obstacles: DynamicObstacle[] = [];
   private nextId: number = 0;
+  private ws: WebSocket | null = null;
 
   constructor() {
     // 初始化時隨機生成15個障礙物
     this.initializeRandomObstacles();
+    this.initWebSocket();
   }
 
   // 初始化隨機障礙物（類似many模式但位置隨機）
@@ -52,6 +54,7 @@ export class DynamicObstacleSystem {
     }
     
     console.log(`✨ 初始化動態障礙物系統，創建了 ${obstacleCount} 個隨機障礙物`);
+    this.sendObstaclePositions();
   }
 
   // 檢查點與障礙物的碰撞
@@ -106,6 +109,8 @@ export class DynamicObstacleSystem {
     
     obstacle.pos[0] = Math.max(halfSizeX, Math.min(1 - halfSizeX, obstacle.pos[0]));
     obstacle.pos[1] = Math.max(halfSizeY, Math.min(1 - halfSizeY, obstacle.pos[1]));
+
+    this.sendObstaclePositions();
   }
 
   // 獲取所有障礙物
@@ -123,5 +128,23 @@ export class DynamicObstacleSystem {
   reset(): void {
     this.clear();
     this.initializeRandomObstacles();
+  }
+
+  private initWebSocket(): void {
+    this.ws = new WebSocket('ws://127.0.0.1:9980');
+    this.ws.onopen = () => {
+      this.sendObstaclePositions();
+    };
+    this.ws.onerror = (err) => {
+      console.error('Obstacle WS error', err);
+    };
+  }
+
+  private sendObstaclePositions(): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      const positions = this.obstacles.map(o => [o.pos[0], o.pos[1]]);
+      const msg = 'OBS' + JSON.stringify(positions);
+      this.ws.send(msg);
+    }
   }
 }
