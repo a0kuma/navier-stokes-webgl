@@ -11,6 +11,7 @@ import "./page-interface-generated";
 // [2025新增功能] WS模擬多滑鼠 (TypeScript)
 import { MultiMouseWS, MousePoint } from "./ws-mouse";
 import { MousePointRenderer } from "./mouse-point-renderer";
+import { DynamicObstacleController } from "./dynamic-obstacle-controller";
 
 // [2025新增功能] 動態障礙物系統
 import { DynamicObstacleSystem } from "./dynamic-obstacle";
@@ -25,6 +26,7 @@ let obstacleSize = 256;
 let dynamicObstacleSystem: DynamicObstacleSystem | null = null;
 
 let mousePointRenderer: MousePointRenderer | null = null;
+let dynamicObstacleController: DynamicObstacleController | null = null;
 
 // callback：把多滑鼠座標給流體模擬和視覺化
 function updateFluidWithMultiMouse(points: MousePoint[]): void {
@@ -37,6 +39,7 @@ function updateFluidWithMultiMouse(points: MousePoint[]): void {
     mousePointRenderer.updatePoints(points);
   }
 }
+
 
 // 檢查滑鼠點是否與障礙物碰撞
 function checkCollisionWithObstacles(points: MousePoint[]): void {
@@ -112,6 +115,7 @@ function checkCollisionWithObstacles(points: MousePoint[]): void {
 (window as any).dynamicObstacleSystem = null;
 
 // 初始化 WebSocket (設定為 60 FPS，與畫面更新同步)
+
 const ws = new MultiMouseWS("ws://localhost:9980", updateFluidWithMultiMouse, 10);
 ws.connect();
 
@@ -156,9 +160,11 @@ function main() {
         return;
 
     // TypeScript doesn't know that gl is non-null after the above check
+
     webgl = gl;
 
     // 初始化滑鼠點渲染器
+
     mousePointRenderer = new MousePointRenderer(canvas);
 
     const extensions: string[] = [
@@ -187,12 +193,14 @@ function main() {
             }
         }
     }
+
       // 初始化動態障礙物系統
     dynamicObstacleSystem = new DynamicObstacleSystem();
     (window as any).dynamicObstacleSystem = dynamicObstacleSystem; // 暴露到全域
     obstacleMaps["dynamic"] = new ObstacleMap(webgl, size, size);
     // 為動態障礙物創建初始障礙物地圖
     rebuildDynamicObstacleMap();Parameters.bind(fluid);
+
 
     // 設定障礙物鍵盤控制
     setupObstacleControls();
@@ -213,7 +221,9 @@ function main() {
 
         /* If the javascript was paused (tab lost focus), the dt may be too big.
          * In that case we adjust it so the simulation resumes correctly. */
+
         dt = Math.min(dt, 1 / 10);        const obstacleMap: ObstacleMap = obstacleMaps[Parameters.obstacles];
+
 
         /* Updating */
         // 更新動態障礙物（如果啟用）

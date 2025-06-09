@@ -1,5 +1,6 @@
 import { MousePoint } from "./ws-mouse";
 
+
 // 動態障礙物介面
 export interface DynamicObstacle {
   id: number;
@@ -106,12 +107,14 @@ export class DynamicObstacleSystem {
     
     obstacle.pos[0] = Math.max(halfSizeX, Math.min(1 - halfSizeX, obstacle.pos[0]));
     obstacle.pos[1] = Math.max(halfSizeY, Math.min(1 - halfSizeY, obstacle.pos[1]));
+
   }
 
   // 獲取所有障礙物
   getObstacles(): DynamicObstacle[] {
     return this.obstacles;
   }
+
 
   // 清除所有障礙物
   clear(): void {
@@ -123,5 +126,6 @@ export class DynamicObstacleSystem {
   reset(): void {
     this.clear();
     this.initializeRandomObstacles();
+
   }
 }

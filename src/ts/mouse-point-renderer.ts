@@ -1,4 +1,5 @@
 import { MousePoint } from "./ws-mouse";
+import { DynamicObstacle } from "./dynamic-obstacle";
 
 export class MousePointRenderer {
     private canvas: HTMLCanvasElement;
@@ -6,7 +7,9 @@ export class MousePointRenderer {
     private overlayCanvas: HTMLCanvasElement;
     private overlayCtx: CanvasRenderingContext2D;
     private points: MousePoint[] = [];
+
     private visible: boolean = true;
+
 
     constructor(targetCanvas: HTMLCanvasElement) {
         this.canvas = targetCanvas;
@@ -53,6 +56,7 @@ export class MousePointRenderer {
         this.render();
     }
 
+
     setVisible(visible: boolean): void {
         this.visible = visible;
         this.overlayCanvas.style.display = visible ? 'block' : 'none';
@@ -65,17 +69,26 @@ export class MousePointRenderer {
 
     isVisible(): boolean {
         return this.visible;
+
     }
 
     private render(): void {
         // 清除畫布
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         
+
         if (this.points.length === 0 || !this.visible) return;
+
 
         const canvasWidth = this.overlayCanvas.width;
         const canvasHeight = this.overlayCanvas.height;
 
+        // 繪製動態障礙物
+        this.renderDynamicObstacles(canvasWidth, canvasHeight);
+        
+        if (this.points.length === 0) return;
+
+        // 繪製滑鼠點
         this.points.forEach((point, index) => {
             // 將標準化座標 (0-1) 轉換為畫布像素座標
             const x = point.pos[0] * canvasWidth;
@@ -91,6 +104,24 @@ export class MousePointRenderer {
             // 如果有移動向量，繪製移動軌跡
             if (point.movement[0] !== 0 || point.movement[1] !== 0) {
                 this.drawMovement(x, y, point.movement, color, canvasWidth, canvasHeight);
+            }
+        });
+    }
+
+    private renderDynamicObstacles(canvasWidth: number, canvasHeight: number): void {
+        this.dynamicObstacles.forEach((obstacle, index) => {
+            // 將標準化座標轉換為畫布像素座標
+            const x = obstacle.pos[0] * canvasWidth;
+            const y = (1.0 - obstacle.pos[1]) * canvasHeight;
+            const sizeX = obstacle.size[0] * canvasWidth;
+            const sizeY = obstacle.size[1] * canvasHeight;
+            
+            // 繪製障礙物
+            this.drawObstacle(x, y, sizeX, sizeY, obstacle, index);
+            
+            // 如果障礙物有速度，繪製速度向量
+            if (obstacle.vel[0] !== 0 || obstacle.vel[1] !== 0) {
+                this.drawObstacleVelocity(x, y, obstacle.vel, canvasWidth, canvasHeight);
             }
         });
     }
@@ -150,6 +181,82 @@ export class MousePointRenderer {
         // 繪製箭頭頭部
         const angle = Math.atan2(moveY, moveX);
         const headLength = Math.min(15, magnitude * 0.3);
+        
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+            endX - headLength * Math.cos(angle - Math.PI / 6),
+            endY - headLength * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+            endX - headLength * Math.cos(angle + Math.PI / 6),
+            endY - headLength * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.stroke();
+        
+        ctx.globalAlpha = 1.0;
+    }
+
+    private drawObstacle(x: number, y: number, sizeX: number, sizeY: number, obstacle: DynamicObstacle, index: number): void {
+        const ctx = this.overlayCtx;
+        
+        // 計算顏色基於障礙物質量和摩擦力
+        const hue = (obstacle.mass * 60 + obstacle.friction * 120) % 360;
+        const color = `hsl(${hue}, 80%, 50%)`;
+        
+        // 繪製障礙物主體（圓形或橢圓）
+        ctx.beginPath();
+        ctx.ellipse(x, y, sizeX/2, sizeY/2, 0, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        
+        // 繪製邊框
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 1.0;
+        ctx.stroke();
+        
+        // 繪製障礙物 ID
+        ctx.fillStyle = 'white';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`O${obstacle.id}`, x, y);
+        
+        // 顯示障礙物屬性（質量、摩擦力、彈性）
+        ctx.font = '8px Arial';
+        ctx.fillStyle = 'black';
+        ctx.fillText(`M:${obstacle.mass.toFixed(1)} F:${obstacle.friction.toFixed(2)} R:${obstacle.restitution.toFixed(2)}`, 
+                    x, y + sizeY/2 + 10);
+    }
+
+    private drawObstacleVelocity(x: number, y: number, velocity: [number, number], canvasWidth: number, canvasHeight: number): void {
+        const ctx = this.overlayCtx;
+        
+        // 將速度轉換為像素並放大以便可視化
+        const velX = velocity[0] * canvasWidth * 200;
+        const velY = -velocity[1] * canvasHeight * 200; // 注意Y軸翻轉
+        
+        const magnitude = Math.sqrt(velX * velX + velY * velY);
+        if (magnitude < 3) return; // 太小的速度不顯示
+        
+        const endX = x + velX;
+        const endY = y + velY;
+        
+        // 繪製速度箭頭
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.9;
+        ctx.stroke();
+        
+        // 繪製箭頭頭部
+        const angle = Math.atan2(velY, velX);
+        const headLength = Math.min(12, magnitude * 0.2);
         
         ctx.beginPath();
         ctx.moveTo(endX, endY);
