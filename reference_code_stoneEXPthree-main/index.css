@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+#stats {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
