@@ -121,7 +121,7 @@ interface DisplayInfo {
 const displayInfo: DisplayInfo = {
     velocity: true,
     pressure: true,
-    brush: true,
+    brush: false,//true,
     obstacles: true,
     mousePoints: true,
     warmColors: false,
