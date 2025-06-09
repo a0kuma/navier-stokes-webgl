@@ -143,7 +143,7 @@ export class DynamicObstacleSystem {
   private sendObstaclePositions(): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const positions = this.obstacles.map(o => [o.pos[0], o.pos[1]]);
-      const msg = 'OBS' + JSON.stringify(positions);
+      const msg = 'obs' + JSON.stringify(positions);
       this.ws.send(msg);
     }
   }
