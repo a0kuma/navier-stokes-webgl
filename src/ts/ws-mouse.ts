@@ -132,9 +132,12 @@ export class MultiMouseWS {
           } else {
             this.points = (data as [number, number][]).map(([x, y]) => ({ pos: [x, y], movement: [0, 0] }));
           }
-          
-          // 🎯 在這裡進行碰撞檢測
-          this.performCollisionDetection();
+
+          // 檢查與障礙物的碰撞並 console log
+          if ((window as any).checkCollisionWithObstacles && this.points.length > 0) {
+            (window as any).checkCollisionWithObstacles(this.points);
+          }
+
           
           if (this.onPointsUpdate) this.onPointsUpdate(this.points);
         }

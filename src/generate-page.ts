@@ -23,11 +23,10 @@ const data = {
             id: "fps",
             label: "FPS"
         }
-    ],
-    canvas: {
-        width: 512,
-        height: 512,
-        enableFullscreen: false
+    ],    canvas: {
+        width: 1920,
+        height: 1080,
+        enableFullscreen: true
     },
     controlsSections: [
         {
@@ -37,8 +36,7 @@ const data = {
                     type: Demopage.supportedControls.Tabs,
                     title: "Resolution",
                     id: "resolution",
-                    unique: true,
-                    options: [
+                    unique: true,                    options: [
                         {
                             value: "128",
                             label: "128"
@@ -51,6 +49,14 @@ const data = {
                         {
                             value: "512",
                             label: "512"
+                        },
+                        {
+                            value: "1280x720",
+                            label: "1280×720"
+                        },
+                        {
+                            value: "1920x1080",
+                            label: "1920×1080"
                         }
                     ]
                 },
@@ -83,8 +89,7 @@ const data = {
                     title: "Stream",
                     id: "stream-checkbox-id",
                     checked: true
-                },
-                {
+                },                {
                     type: Demopage.supportedControls.Tabs,
                     title: "Obstacles",
                     id: "obstacles",
@@ -102,6 +107,10 @@ const data = {
                             value: "many",
                             label: "Many",
                             checked: true
+                        },
+                        {
+                            value: "dynamic",
+                            label: "Dynamic"
                         }
                     ]
                 }
@@ -118,8 +127,7 @@ const data = {
                     max: 100,
                     value: 40,
                     step: 1
-                },
-                {
+                },                {
                     type: Demopage.supportedControls.Range,
                     title: "Strength",
                     id: "brush-strength-range-id",
@@ -127,6 +135,20 @@ const data = {
                     max: 200,
                     value: 100,
                     step: 1
+                }
+            ]
+        },
+        {
+            title: "Collision",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Range,
+                    title: "Collision Speed",
+                    id: "collision-speed-range-id",
+                    min: 0.01,
+                    max: 1.0,
+                    value: 0.02,
+                    step: 0.01
                 }
             ]
         },
@@ -167,8 +189,20 @@ const data = {
                 },
                 {
                     type: Demopage.supportedControls.Checkbox,
+                    title: "Warm Colors (Lava)",
+                    id: "display-warm-colors-checkbox-id",
+                    checked: false
+                },
+                {
+                    type: Demopage.supportedControls.Checkbox,
                     title: "Obstacles",
                     id: "display-obstacles-checkbox-id",
+                    checked: true
+                },
+                {
+                    type: Demopage.supportedControls.Checkbox,
+                    title: "Mouse Points",
+                    id: "display-mouse-points-checkbox-id",
                     checked: true
                 }
             ]
