@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
-    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-06-09T00%3A03%3A31.658Z">
+    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-05-26T18%3A52%3A40.146Z">
   </head>
 
   <body>
@@ -25,9 +25,23 @@
     </header>
     <main>
       <div class="contents">
-        <p>LAVA可能要改
-          <img src="https://github.com/user-attachments/assets/0f16df5b-fa3f-4836-90b0-c5ac623a4e6b" alt="image" />
-        </p>
+        <h1 id="navierstokeswebgl">navier-stokes-webgl</h1>
+        <p>Stable fluid simulation on GPU using WebGL.</p>
+        <p>Live version <a href="https://piellardj.github.io/navier-stokes-webgl">here</a>.</p>
+        <p>This is an implementation of the Stable Fluid described by Jos Stam.</p>
+        <p><a href="https://www.paypal.com/donate/?hosted_button_id=AF7H7GEJTL95E"><img src="https://raw.githubusercontent.com/piellardj/piellardj.github.io/master/images/readme/donate-paypal.svg" alt="Donate" /></a></p>
+        <h1 id="simulation">Simulation</h1>
+        <p>The simulation is implemented on GPU with the method provided in GPU Gems.
+          The diffusion term was dropped since it didn't have much visual influence.</p>
+        <h1 id="datastorage">Data storage</h1>
+        <p>This simulation can run in two modes for storing the velocities:</p>
+        <ul>
+          <li>velocity stored in float textures: each component (x, y) is stored as a 32bit float.
+            To do so the following extensions must be available: <code>OES_texture_float</code>, <code>WEBGL_color_buffer_float</code>, <code>OES_texture_float_linear</code>.</li>
+          <li>velocity stored in normal textures with four 8bit channels.
+            In this mode each component is stored as a 16bit fixed point value, encoded in two 8bit texture channels.
+            This mode provides less precision for the computing, and you can see artifacts if you push the display color intensity to the maximum.</li>
+        </ul>
       </div>
     </main>
 

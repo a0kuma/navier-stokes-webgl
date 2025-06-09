@@ -1237,4 +1237,4 @@ var Page;
     })(Canvas = Page.Canvas || (Page.Canvas = {}));
 })(Page || (Page = {}));
 
-Page.Canvas.setMaxSize(1920,1080);
+Page.Canvas.setMaxSize(512,512);

@@ -267,7 +267,6 @@ const drawVelocityFrag =
 uniform sampler2D uVel;
 uniform float uColorIntensity;
 uniform bool uBlacknWhite;
-uniform bool uWarmColors;
 
 varying vec2 sampleCoords;
 
@@ -292,33 +291,10 @@ vec3 color(float value) {
     return vec3(r,g,b);
 }
 
-/* Warm colors only (yellow to red range) for lava effect */
-vec3 warmColor(float value) {
-    // Map to warm hues: yellow (0.17) to red (0.0/1.0)
-    // Create a smooth transition from yellow through orange to red
-    value = clamp(value, 0.0, 1.0);
-    
-    // Create a warm color palette
-    float r = 1.0; // Always high red component
-    float g = 1.0 - smoothstep(0.3, 1.0, value); // Yellow to orange transition
-    float b = 0.0; // No blue for warm colors
-    
-    return vec3(r, g, b);
-}
-
 void main(void) {
     vec2 vel = decodeVelocity(texture2D(uVel, sampleCoords)) / MAX_SPEED;
 
-    vec3 c;
-    if (uWarmColors) {
-        // Use velocity magnitude for warm colors instead of direction
-        float magnitude = length(vel);
-        c = warmColor(magnitude);
-    } else {
-        // Use direction-based coloring for full spectrum
-        c = color(atan(vel.y, vel.x) / (2.0 * 3.14159));
-    }
-    
+    vec3 c = color(atan(vel.y, vel.x) / (2.0 * 3.14159));
     c = mix(c, vec3(1), float(uBlacknWhite));
 
     float intensity = smoothstep(0.0, 1.0, uColorIntensity*length(vel));

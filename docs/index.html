@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
-    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-06-09T00%3A03%3A31.676Z">
+    <link rel="stylesheet" type="text/css" href="css/page.css?v=2025-05-26T18%3A52%3A40.165Z">
   </head>
 
   <body>
@@ -58,7 +58,7 @@
               FPS: <span></span>
             </div>
           </div>
-          <div id="canvas-buttons-column">
+          <div id="canvas-buttons-column" class="hidden">
             <label class="canvas-button" id="fullscreen-toggle-id" for="fullscreen-checkbox-id"></label>
             <label class="canvas-button" id="side-pane-toggle-id" for="side-pane-checkbox-id"></label>
           </div>
@@ -83,10 +83,6 @@
                   <label for="resolution-256-id">256</label>
                   <input type="radio" name="resolution" value="512" id="resolution-512-id" />
                   <label for="resolution-512-id">512</label>
-                  <input type="radio" name="resolution" value="1280x720" id="resolution-1280x720-id" />
-                  <label for="resolution-1280x720-id">1280×720</label>
-                  <input type="radio" name="resolution" value="1920x1080" id="resolution-1920x1080-id" />
-                  <label for="resolution-1920x1080-id">1920×1080</label>
                 </div>
               </div>
               <div class="control" id="control-float-texture-checkbox-id">
@@ -160,8 +156,6 @@
                   <label for="obstacles-one-id">One</label>
                   <input type="radio" name="obstacles" value="many" id="obstacles-many-id" checked />
                   <label for="obstacles-many-id">Many</label>
-                  <input type="radio" name="obstacles" value="dynamic" id="obstacles-dynamic-id" />
-                  <label for="obstacles-dynamic-id">Dynamic</label>
                 </div>
               </div>
             </div>
@@ -223,37 +217,6 @@
           </section>
           <hr />
           <section class="controls-section">
-            <h2>Collision</h2>
-
-            <div class="controls-list">
-              <div class="control" id="control-collision-speed-range-id">
-                <label>Collision Speed:</label>
-                <div class="range-container">
-                  <input type="range" min="0.01" max="1" value="0.02" step="0.01" class="slider" id="collision-speed-range-id">
-                  <div class="range-skin-container">
-                    <div class="range-stub">
-                      <span class="range-bar range-bar-left range-stub-left"></span>
-                    </div>
-                    <div class="range-progress">
-                      <div class="range-progress-left">
-                        <span class="range-bar range-bar-left"></span>
-                        <span class="range-handle"></span>
-                        <output for="collision-speed-range-id" class="range-tooltip"></output>
-                      </div>
-                      <div class="range-progress-right">
-                        <span class="range-bar range-bar-right"></span>
-                      </div>
-                    </div>
-                    <div class="range-stub">
-                      <span class="range-bar range-bar-right range-stub-right"></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-          <hr />
-          <section class="controls-section">
             <h2>Display</h2>
 
             <div class="controls-list">
@@ -297,25 +260,11 @@
                   <label for="display-color-checkbox-id" class="checkmark"></label>
                 </div>
               </div>
-              <div class="control" id="control-display-warm-colors-checkbox-id">
-                <label>Warm Colors (Lava):</label>
-                <div class="checkbox">
-                  <input type="checkbox" id="display-warm-colors-checkbox-id">
-                  <label for="display-warm-colors-checkbox-id" class="checkmark"></label>
-                </div>
-              </div>
               <div class="control" id="control-display-obstacles-checkbox-id">
                 <label>Obstacles:</label>
                 <div class="checkbox">
                   <input type="checkbox" id="display-obstacles-checkbox-id" checked>
                   <label for="display-obstacles-checkbox-id" class="checkmark"></label>
-                </div>
-              </div>
-              <div class="control" id="control-display-mouse-points-checkbox-id">
-                <label>Mouse Points:</label>
-                <div class="checkbox">
-                  <input type="checkbox" id="display-mouse-points-checkbox-id" checked>
-                  <label for="display-mouse-points-checkbox-id" class="checkmark"></label>
                 </div>
               </div>
             </div>
@@ -350,12 +299,12 @@
     <script type="text/javascript">
       var Page = Page || {};
       Object.defineProperty(Page, "version", {
-        value: "2025-06-09T00%3A03%3A31.676Z",
+        value: "2025-05-26T18%3A52%3A40.165Z",
         writable: false,
       });
     </script>
-    <script src="script/page.min.js?v=2025-06-09T00%3A03%3A31.676Z"></script>
-    <script src="script/main.min.js?v=2025-06-09T00%3A03%3A31.676Z"></script>
+    <script src="script/page.min.js?v=2025-05-26T18%3A52%3A40.165Z"></script>
+    <script src="script/main.min.js?v=2025-05-26T18%3A52%3A40.165Z"></script>
   </body>
 
 </html>

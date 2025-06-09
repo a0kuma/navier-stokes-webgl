@@ -7,9 +7,7 @@ export class MousePointRenderer {
     private overlayCanvas: HTMLCanvasElement;
     private overlayCtx: CanvasRenderingContext2D;
     private points: MousePoint[] = [];
-
-    private visible: boolean = true;
-
+    private dynamicObstacles: DynamicObstacle[] = [];
 
     constructor(targetCanvas: HTMLCanvasElement) {
         this.canvas = targetCanvas;
@@ -56,30 +54,16 @@ export class MousePointRenderer {
         this.render();
     }
 
-
-    setVisible(visible: boolean): void {
-        this.visible = visible;
-        this.overlayCanvas.style.display = visible ? 'block' : 'none';
-        if (visible) {
-            this.render();
-        } else {
-            this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
-        }
-    }
-
-    isVisible(): boolean {
-        return this.visible;
-
+    // 新增：更新動態障礙物
+    updateDynamicObstacles(obstacles: DynamicObstacle[]): void {
+        this.dynamicObstacles = obstacles;
+        this.render();
     }
 
     private render(): void {
         // 清除畫布
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         
-
-        if (this.points.length === 0 || !this.visible) return;
-
-
         const canvasWidth = this.overlayCanvas.width;
         const canvasHeight = this.overlayCanvas.height;
 

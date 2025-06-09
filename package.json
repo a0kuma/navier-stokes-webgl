@@ -7,7 +7,6 @@
   "private": true,
   "license": "ISC",
   "scripts": {
-    "start": "npm run clean; npm run build; cd docs; pubhtml",
     "pre-commit": "npm run rebuild",
     "build-page": "ts-node-script src/generate-page.ts",
     "build": "npm run build-page && npm run webpack",

@@ -115,45 +115,20 @@ interface DisplayInfo {
     pressure: boolean,
     brush: boolean,
     obstacles: boolean,
-    mousePoints: boolean,
-    warmColors: boolean,
 }
 const displayInfo: DisplayInfo = {
     velocity: true,
     pressure: true,
     brush: true,
     obstacles: true,
-    mousePoints: true,
-    warmColors: false,
-}
-
-interface CollisionInfo {
-    speed: number,
-}
-const collisionInfo: CollisionInfo = {
-    speed: 0.1,
 }
 
 function bindControls(fluid: Fluid): void {
     {
         const RESOLUTIONS_CONTROL_ID = "resolution";
         const updateResolution = (values: string[]) => {
-            const resolutionValue: string = values[0];
-            let width: number, height: number;
-            
-            // 處理不同的解析度格式
-            if (resolutionValue.includes('x')) {
-                // 處理 "1920x1080" 或 "1280x720" 格式
-                const [w, h] = resolutionValue.split('x');
-                width = +w;
-                height = +h;
-            } else {
-                // 處理正方形解析度 "128", "256", "512"
-                width = height = +resolutionValue;
-            }
-            
-            console.log(`🔧 設定解析度: ${width}×${height}`);
-            fluid.reset(width, height);
+            const size: number = +values[0];
+            fluid.reset(size, size);
         };
         Page.Tabs.addObserver(RESOLUTIONS_CONTROL_ID, updateResolution);
         updateResolution(Page.Tabs.getValues(RESOLUTIONS_CONTROL_ID));
@@ -185,19 +160,12 @@ function bindControls(fluid: Fluid): void {
         const updateStream = (doStream: boolean) => { fluidInfo.stream = doStream; };
         Page.Checkbox.addObserver(STREAM_CONTROL_ID, updateStream);
         updateStream(Page.Checkbox.isChecked(STREAM_CONTROL_ID));
-    }    {
+    }
+    {
         const OBSTACLES_CONTROL_ID = "obstacles";
         const updateObstacles = (values: string[]) => {
             obstaclesInfo = values[0] as ObstaclesInfo;
-            
-            // 如果切換到動態模式，重新初始化動態障礙物系統
-            if (obstaclesInfo === ObstaclesInfo.DYNAMIC) {
-                // 通知動態障礙物系統進行重置
-                if ((window as any).dynamicObstacleSystem) {
-                    (window as any).dynamicObstacleSystem.reset();
-                    console.log("🔄 切換到動態障礙物模式，重新初始化障礙物");
-                }
-            }
+
         };
         Page.Tabs.addObserver(OBSTACLES_CONTROL_ID, updateObstacles);
         updateObstacles(Page.Tabs.getValues(OBSTACLES_CONTROL_ID));
@@ -244,29 +212,9 @@ function bindControls(fluid: Fluid): void {
     }
     {
         const DISPLAY_OBSTACLES_CONTROL_ID = "display-obstacles-checkbox-id";
-        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };        
+        const updateDisplayObstacles = (display: boolean) => { displayInfo.obstacles = display; };
         Page.Checkbox.addObserver(DISPLAY_OBSTACLES_CONTROL_ID, updateDisplayObstacles);
         updateDisplayObstacles(Page.Checkbox.isChecked(DISPLAY_OBSTACLES_CONTROL_ID));
-    }
-    {
-        const DISPLAY_MOUSE_POINTS_CONTROL_ID = "display-mouse-points-checkbox-id";
-        const updateDisplayMousePoints = (display: boolean) => { displayInfo.mousePoints = display; };
-        Page.Checkbox.addObserver(DISPLAY_MOUSE_POINTS_CONTROL_ID, updateDisplayMousePoints);
-        updateDisplayMousePoints(Page.Checkbox.isChecked(DISPLAY_MOUSE_POINTS_CONTROL_ID));
-    }    {
-        const DISPLAY_WARM_COLORS_CONTROL_ID = "display-warm-colors-checkbox-id";
-        const updateDisplayWarmColors = (display: boolean) => { 
-            displayInfo.warmColors = display;
-            fluid.warmColors = display;
-        };
-        Page.Checkbox.addObserver(DISPLAY_WARM_COLORS_CONTROL_ID, updateDisplayWarmColors);
-        updateDisplayWarmColors(Page.Checkbox.isChecked(DISPLAY_WARM_COLORS_CONTROL_ID));
-    }
-    {
-        const COLLISION_SPEED_CONTROL_ID = "collision-speed-range-id";
-        const updateCollisionSpeed = (speed: number) => { collisionInfo.speed = speed; };
-        Page.Range.addObserver(COLLISION_SPEED_CONTROL_ID, updateCollisionSpeed);
-        updateCollisionSpeed(Page.Range.getValue(COLLISION_SPEED_CONTROL_ID));
     }
 }
 
@@ -281,6 +229,5 @@ export {
     brushInfo as brush,
     displayInfo as display,
     obstaclesInfo as obstacles,
-    fluidInfo as fluid,
-    collisionInfo as collision
+    fluidInfo as fluid
 };
